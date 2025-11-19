@@ -1,16 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
-    <title>Nexa – Coming Soon</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Nexa – AI-Powered Renovation Platform | Coming Soon</title>
 
-    <!-- Google Font (similar to your design, change if needed) -->
+    <!-- Basic SEO -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description"
+          content="Nexa is a digital platform that connects clients with verified technicians and uses AI-powered diagnosis to bring reliability and transparency to renovation and facility management in Tunisia and beyond." />
+    <meta name="keywords"
+          content="Nexa, renovation platform, maintenance, facility management, AI-powered diagnosis, Tunisia, verified technicians" />
+    <meta name="robots" content="index,follow" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://nexa.com.tn/" />
+
+    <!-- Favicon (update paths to your real icons) -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Nexa – AI-Powered Renovation Platform | Coming Soon" />
+    <meta property="og:description"
+          content="Nexa is a digital platform that transforms renovation maintenance operations with AI-powered diagnosis, smart pricing and verified technicians." />
+    <meta property="og:url" content="https://nexa.com.tn/" />
+    <meta property="og:image" content="https://nexa.com.tn/og-image.jpg" />
+    <meta property="og:site_name" content="Nexa" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Nexa – AI-Powered Renovation Platform | Coming Soon" />
+    <meta name="twitter:description"
+          content="Coming soon: Nexa, the digital platform for renovation and facility management with AI-powered diagnosis and verified technicians." />
+    <meta name="twitter:image" content="https://nexa.com.tn/og-image.jpg" />
+
+    <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-    <!-- Font Awesome for social icons (optional) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+          rel="stylesheet" />
+    <!-- Font Awesome for social icons -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
     <style>
         :root {
@@ -58,19 +89,19 @@
 
         .bg-ring.left {
             height: 90vh;
-            left: 0px;
+            left: 0;
             top: 50%;
-            transform: scaleX(-1) translateY(-50%);
+            transform-origin: center center;
+            transform: translateY(-50%) scaleX(-1);
         }
 
         .bg-ring.right {
             height: 90vh;
-            right: 0px;
+            right: 0;
             top: 50%;
             transform: translateY(-50%);
         }
 
-        /* Faint “ghost” logo block in center */
         .ghost-logo {
             position: absolute;
             inset: 120px 12%;
@@ -89,24 +120,6 @@
 
         .logo {
             height: 44px;
-        }
-
-        .logo-mark {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            border: 3px solid var(--text-main);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: 800;
-        }
-
-        /* Replace this with your real SVG/logo image */
-        .logo-mark span {
-            display: inline-block;
-            transform: translateY(-1px);
         }
 
         .cta-phone {
@@ -159,7 +172,7 @@
             color: var(--text-muted);
         }
 
-        .description p+p {
+        .description p + p {
             margin-top: 12px;
         }
 
@@ -176,33 +189,9 @@
             text-align: center;
         }
 
-        .nexa-mark {
-            display: inline-flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            font-weight: 700;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            font-size: 18px;
+        .contact-logo {
+            height: 44px;
             margin-bottom: 10px;
-        }
-
-        .nexa-icon {
-            width: 54px;
-            height: 54px;
-            border-radius: 14px;
-            border: 3px solid var(--text-main);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: 800;
-        }
-
-        /* Replace with your official Nexa wordmark SVG */
-        .nexa-word {
-            font-size: 18px;
         }
 
         .contact-email {
@@ -257,11 +246,6 @@
                 border-radius: 24px;
             }
 
-            .header {
-                flex-direction: row;
-                gap: 16px;
-            }
-
             .cta-phone {
                 padding: 6px 14px;
                 font-size: 12px;
@@ -274,65 +258,91 @@
             .middle-block {
                 margin-top: 48px;
             }
-
         }
     </style>
+
+    <!-- Structured Data: Organization / LocalBusiness -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Nexa",
+      "url": "https://nexa.com.tn/",
+      "logo": "https://nexa.com.tn/logo.svg",
+      "description": "Nexa is a digital platform that transforms renovation maintenance operations and facility management with AI-powered diagnosis, smart pricing, and verified technicians.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "TN"
+      },
+      "telephone": "+21624343404",
+      "email": "contact@nexa.com.tn",
+      "sameAs": [
+        "https://www.linkedin.com/company/nexacomtn/"
+      ]
+    }
+    </script>
 </head>
 
 <body>
-    <!-- Background decorative shapes -->
-    <img class="bg-ring left" src="/bg-ring.svg" alt="" />
-    <img class="bg-ring right" src="/bg-ring.svg" alt="" />
-    <div class="ghost-logo"></div>
+    <!-- Background decorative shapes: decorative only, so empty alt + aria-hidden -->
+    <img class="bg-ring left" src="/bg-ring.svg" alt="" aria-hidden="true" />
+    <img class="bg-ring right" src="/bg-ring.svg" alt="" aria-hidden="true" />
+    <div class="ghost-logo" aria-hidden="true"></div>
 
     <div class="page">
         <!-- HEADER -->
         <header class="header">
-            <img class="logo" src="/logo.svg" alt="Nexa Logo" />
+            <a href="/" aria-label="Nexa home">
+                <img class="logo" src="/logo.svg" alt="Nexa" />
+            </a>
 
             <a class="cta-phone" href="tel:+21624343404">
-                <i class="fa-solid fa-phone"></i>
+                <i class="fa-solid fa-phone" aria-hidden="true"></i>
                 <span>+216 24 343 404</span>
             </a>
         </header>
 
         <!-- MAIN CONTENT -->
-        <main class="content">
+        <main id="main-content" class="content">
             <h1 class="headline">Coming Soon</h1>
             <div class="headline-separator"></div>
 
-            <div class="description">
+            <section aria-label="About Nexa" class="description">
                 <p>
                     Nexa is a digital platform that transforms how renovation maintenance operations and renovation are
-                    managed –
-                    for <b>homes</b> and for <b>businesses</b>.
+                    managed – for <b>homes</b> and for <b>businesses</b>.
                 </p>
                 <p>
                     We connect clients with verified technicians and provide a dashboard to track every step: from
-                    quotation to
-                    execution, payments and quality control.
+                    quotation to execution, payments and quality control.
                 </p>
                 <p>
                     With <b>AI-powered diagnosis</b>, smart pricing and material supplier integration, Nexa brings
-                    reliability,
-                    transparency and automation to a market where trust is broken. Our ambition: become the operating
-                    system for
-                    renovation and facility management in Tunisia and beyond.
+                    reliability, transparency and automation to a market where trust is broken. Our ambition: become the
+                    operating system for renovation and facility management in Tunisia and beyond.
                 </p>
-            </div>
+            </section>
 
-            <section class="middle-block">
-                <img class="logo" src="/logo.svg" alt="Nexa logo" />
+            <section class="middle-block" aria-label="Contact Nexa">
+                <img class="contact-logo" src="/logo.svg" alt="Nexa" />
 
                 <div class="contact-email">
                     <a href="mailto:contact@nexa.com.tn">contact@nexa.com.tn</a>
                 </div>
 
-                <div class="socials">
-                    <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
-                    <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="https://www.linkedin.com/company/nexacomtn/" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
-                    <a href="#" aria-label="Github"><i class="fa-brands fa-github"></i></a>
+                <div class="socials" aria-label="Nexa on social media">
+                    <a href="#" aria-label="Facebook">
+                        <i class="fa-brands fa-facebook" aria-hidden="true"></i>
+                    </a>
+                    <a href="#" aria-label="Instagram">
+                        <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/company/nexacomtn/" aria-label="LinkedIn">
+                        <i class="fa-brands fa-linkedin" aria-hidden="true"></i>
+                    </a>
+                    <a href="#" aria-label="GitHub">
+                        <i class="fa-brands fa-github" aria-hidden="true"></i>
+                    </a>
                 </div>
             </section>
         </main>
@@ -343,5 +353,4 @@
         </footer>
     </div>
 </body>
-
 </html>

@@ -1,0 +1,103 @@
+<form id="nexaForm">
+    <select name="who" required>
+        <option value="">Qui êtes-vous ?</option>
+        <option>Technicien</option>
+        <option>Client</option>
+        <option>Entreprise</option>
+    </select>
+
+    <input name="full_name" placeholder="Nom et prénom" required />
+    <input type="email" name="email" placeholder="Email" required />
+    <input name="phone" placeholder="Téléphone (WhatsApp)" required />
+
+    <input name="city_region" placeholder="Ville / Région" />
+    <select name="language">
+        <option value="">Langue préférée</option>
+        <option>Français</option>
+        <option>Arabe</option>
+        <option>Anglais</option>
+    </select>
+
+    <fieldset>
+        <legend>Métier principal</legend>
+        <label><input type="radio" name="main_trade" value="Électricien"> Électricien</label>
+        <label><input type="radio" name="main_trade" value="Plombier"> Plombier</label>
+        <label><input type="radio" name="main_trade" value="Climatisation / Chauffage"> Climatisation /
+            Chauffage</label>
+        <label><input type="radio" name="main_trade" value="Peintre"> Peintre</label>
+        <label><input type="radio" name="main_trade" value="Maçon"> Maçon</label>
+        <label><input type="radio" name="main_trade" value="Autre"> Autre</label>
+    </fieldset>
+
+    <fieldset>
+        <legend>Années d’expérience</legend>
+        <label><input type="radio" name="experience_years" value="0–2"> 0–2 ans</label>
+        <label><input type="radio" name="experience_years" value="3–5"> 3–5 ans</label>
+        <label><input type="radio" name="experience_years" value="6–10"> 6–10 ans</label>
+        <label><input type="radio" name="experience_years" value="+10"> +10 ans</label>
+    </fieldset>
+
+    <fieldset>
+        <legend>Avez-vous un projet dans les 6 prochains mois ?</legend>
+        <label><input type="radio" name="has_project_6m" value="true"> Oui</label>
+        <label><input type="radio" name="has_project_6m" value="false"> Non</label>
+    </fieldset>
+
+    <fieldset>
+        <legend>Êtes-vous prêt à travailler avec :</legend>
+        <label><input type="checkbox" name="ready_clear_prices" value="1"> Des prix clairs</label>
+        <label><input type="checkbox" name="ready_documented_interventions" value="1"> Des interventions
+            documentées</label>
+        <label><input type="checkbox" name="ready_client_reviews" value="1"> Des avis clients</label>
+        <label><input type="checkbox" name="ready_digital_tracking" value="1"> Un suivi digital</label>
+    </fieldset>
+
+    <label>
+        <input type="checkbox" name="wants_updates" value="1" />
+        Je souhaite recevoir les mises à jour
+    </label>
+
+    <button type="submit">Envoyer</button>
+</form>
+
+<script>
+    const form = document.getElementById("nexaForm");
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fd = new FormData(form);
+
+        const toBool = (v) => v === "true" ? true : v === "false" ? false : null;
+
+        const payload = {
+            who: fd.get("who"),
+            full_name: fd.get("full_name"),
+            email: fd.get("email"),
+            phone: fd.get("phone"),
+            city_region: fd.get("city_region"),
+            language: fd.get("language"),
+            main_trade: fd.get("main_trade"),
+            experience_years: fd.get("experience_years"),
+            has_project_6m: toBool(fd.get("has_project_6m")),
+            ready_clear_prices: fd.get("ready_clear_prices") === "1",
+            ready_documented_interventions: fd.get("ready_documented_interventions") === "1",
+            ready_client_reviews: fd.get("ready_client_reviews") === "1",
+            ready_digital_tracking: fd.get("ready_digital_tracking") === "1",
+            wants_updates: fd.get("wants_updates") === "1",
+        };
+
+        const r = await fetch("/.netlify/functions/nexa-signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+
+        if (r.ok) {
+            alert("Merci ! Votre inscription a été envoyée.");
+            form.reset();
+        } else {
+            const t = await r.text();
+            alert("Erreur: " + t);
+        }
+    });
+</script>

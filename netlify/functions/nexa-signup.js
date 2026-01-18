@@ -34,7 +34,7 @@ export default async (req) => {
       wants_updates: !!data.wants_updates,
     };
 
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/nexa_signups`, {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/community_signups`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

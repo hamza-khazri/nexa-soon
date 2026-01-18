@@ -24,7 +24,6 @@ export default async (req) => {
       main_trade: data.main_trade ?? null,
       experience_years: data.experience_years ?? null,
       status: data.status ?? null,
-      company_name: data.company_name ?? null,
       intervention_zones: data.intervention_zones ?? null,
       has_project_6m: data.has_project_6m ?? null,
       ready_clear_prices: !!data.ready_clear_prices,

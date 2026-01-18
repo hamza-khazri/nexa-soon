@@ -55,6 +55,6 @@ export default async (req) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (e) {
-    return new Response("Bad Request", { status: 400 });
+    return new Response("Bad Request", { status: 400 , statusText: e.message });
   }
 };

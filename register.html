@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Nexa – AI-Powered Renovation Platform | Coming Soon</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- Basic SEO -->
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -51,6 +52,7 @@
             --text-muted: #3c3c3c;
             --footer-text: #4a4a4a;
         }
+
         body {
             font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
@@ -62,16 +64,18 @@
             padding: 0 12px;
         }
 
-        .form-head h2{
+        .form-head h2 {
             text-align: center;
             font-size: 47px;
             font-weight: 600;
             margin-bottom: 0px;
         }
-        .form-head span{
+
+        .form-head span {
             color: var(--yellow-bg);
         }
-        .form-head p{
+
+        .form-head p {
             font-size: 16px;
             text-align: center;
             color: var(--text-muted);
@@ -93,6 +97,12 @@
         .nexa-form .row-1 {
             display: grid;
             grid-template-columns: 1fr;
+            gap: 18px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 18px;
         }
 
@@ -231,7 +241,8 @@
                 padding: 18px;
             }
 
-            .nexa-form .row {
+            .nexa-form .row,
+            .grid-2 {
                 grid-template-columns: 1fr;
             }
         }
@@ -289,12 +300,30 @@
                     <div class="label">Ville / Région <span class="req">*</span></div>
                     <select name="city_region" required>
                         <option value="">-Select-</option>
-                        <option value="Tunis">Tunis</option>
                         <option value="Ariana">Ariana</option>
+                        <option value="Béja">Béja</option>
                         <option value="Ben Arous">Ben Arous</option>
-                        <option value="Sousse">Sousse</option>
+                        <option value="Bizerte">Bizerte</option>
+                        <option value="Gabès">Gabès</option>
+                        <option value="Gafsa">Gafsa</option>
+                        <option value="Jendouba">Jendouba</option>
+                        <option value="Kairouan">Kairouan</option>
+                        <option value="Kasserine">Kasserine</option>
+                        <option value="Kébili">Kébili</option>
+                        <option value="Le Kef">Le Kef</option>
+                        <option value="Mahdia">Mahdia</option>
+                        <option value="La Manouba">La Manouba</option>
+                        <option value="Médenine">Médenine</option>
+                        <option value="Monastir">Monastir</option>
+                        <option value="Nabeul">Nabeul</option>
                         <option value="Sfax">Sfax</option>
-                        <option value="Autre">Autre</option>
+                        <option value="Sidi Bouzid">Sidi Bouzid</option>
+                        <option value="Siliana">Siliana</option>
+                        <option value="Sousse">Sousse</option>
+                        <option value="Tataouine">Tataouine</option>
+                        <option value="Tozeur">Tozeur</option>
+                        <option value="Tunis">Tunis</option>
+                        <option value="Zaghouan">Zaghouan</option>
                     </select>
                 </div>
 
@@ -340,7 +369,7 @@
                 </div>
 
                 <div class="grid-2">
-                    <div class="field" id="techCompanyWrap" class="hidden">
+                    <div class="field hidden" id="techCompanyWrap">
                         <div class="label">Nom de l’entreprise <span class="req">*</span></div>
                         <input type="text" name="tech_company_name" placeholder="tapez ici" />
                     </div>
@@ -349,6 +378,15 @@
                         <div class="label">Ville(s) / zone(s) d’intervention <span class="req">*</span></div>
                         <input type="text" name="tech_zones" placeholder="ex: Tunis, Ariana, Ben Arous..." />
                     </div>
+                </div>
+
+                <div class="group-title">Avez-vous un projet de rénovation dans les 6 prochains mois ?</div>
+                <div class="options">
+                    <label class="opt"><input type="radio" name="tech_project_6m" value="Oui"> Oui</label>
+                    <label class="opt"><input type="radio" name="tech_project_6m" value="Non"> Non</label>
+                    <label class="opt"><input type="radio" name="tech_project_6m"
+                            value="Difficulté à trouver des techniciens fiables"> Difficulté à trouver des techniciens
+                        fiables</label>
                 </div>
 
                 <div class="group-title">Êtes-vous prêt à travailler avec :</div>
@@ -361,6 +399,9 @@
                         clients</label>
                     <label class="opt"><input type="checkbox" name="tech_ready_tracking" value="1"> Un suivi
                         digital</label>
+                </div>
+                <div class="field" style="margin-top:15px;">
+                    <div class="label">Réponse : Oui / Non</div>
                 </div>
             </section>
 
@@ -513,143 +554,275 @@
     </div>
 
 
+    <div id="debugLog"
+        style="background:#000; color:#0f0; padding:10px; margin-top:20px; font-family:monospace; display:none;"></div>
+
     <script>
-        const form = document.getElementById("nexaForm");
-        const statusEl = document.getElementById("formStatus");
-
-        const roleEl = document.getElementById("role");
-        const sectionTechnician = document.getElementById("sectionTechnician");
-        const sectionClient = document.getElementById("sectionClient");
-        const sectionEnterprise = document.getElementById("sectionEnterprise");
-
-        // Technician company conditional
-        const techCompanyWrap = document.getElementById("techCompanyWrap");
-
-        function setRequired(selector, required) {
-            const el = form.querySelector(selector);
-            if (!el) return;
-            el.required = required;
-            if (!required) el.value = "";
-        }
-
-        function clearRadio(name) {
-            form.querySelectorAll(`input[name="${name}"]`).forEach(i => i.checked = false);
-        }
-
-        function setSection(role) {
-            sectionTechnician.classList.add("hidden");
-            sectionClient.classList.add("hidden");
-            sectionEnterprise.classList.add("hidden");
-
-            // remove required from role-specific inputs
-            [
-                // technician
-                "tech_main_trade", "tech_experience", "tech_status",
-                // client
-                "client_type", "client_service", "client_how_manage", "client_project_6m",
-                // enterprise
-                "ent_sites", "ent_users", "ent_needs", "ent_how_manage"
-            ].forEach(clearRadio);
-
-            // role-specific required toggles
-            setRequired('input[name="tech_zones"]', false);
-            setRequired('input[name="tech_company_name"]', false);
-            setRequired('input[name="ent_company_name"]', false);
-            setRequired('select[name="ent_activity_type"]', false);
-            setRequired('input[name="ent_company_name_2"]', false);
-            setRequired('select[name="ent_activity_type_2"]', false);
-
-            if (role === "technician") {
-                sectionTechnician.classList.remove("hidden");
-                // force required (we do this by checking one input per group on submit)
-                setRequired('input[name="tech_zones"]', true);
+        // Use a self-executing function to isolate scope and ensure DOM ready
+        (function () {
+            // Debug Logger
+            const debugEl = document.getElementById("debugLog");
+            function log(msg) {
+                console.log(msg);
+                // debugEl.style.display = "block"; debugEl.innerHTML += "<div>" + msg + "</div>";
             }
-            if (role === "client") {
-                sectionClient.classList.remove("hidden");
-            }
-            if (role === "enterprise") {
-                sectionEnterprise.classList.remove("hidden");
-                setRequired('input[name="ent_company_name"]', true);
-                setRequired('select[name="ent_activity_type"]', true);
-                setRequired('input[name="ent_company_name_2"]', true);
-                setRequired('select[name="ent_activity_type_2"]', true);
-            }
-        }
 
-        roleEl.addEventListener("change", () => setSection(roleEl.value));
+            log("Script loaded. Waiting for DOM...");
 
-        // Tech status -> company name required
-        document.addEventListener("change", (e) => {
-            if (e.target.name !== "tech_status") return;
-            const needsCompany = (e.target.value === "Entreprise" || e.target.value === "Technicien salarié");
-            techCompanyWrap.classList.toggle("hidden", !needsCompany);
-            setRequired('input[name="tech_company_name"]', needsCompany);
-        });
+            document.addEventListener("DOMContentLoaded", initForm);
 
-        function requireOneChecked(name, label) {
-            const any = [...form.querySelectorAll(`input[name="${name}"]`)].some(i => i.checked);
-            if (!any) throw new Error(`Veuillez sélectionner: ${label}`);
-        }
+            function initForm() {
+                log("DOM Ready. Initializing...");
 
-        form.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            statusEl.textContent = "Envoi en cours...";
+                // ==========================================
+                // CONFIG: SUPABASE Credentials
+                // ==========================================
+                const SUPABASE_URL = "YOUR_SUPABASE_URL_HERE";
+                const SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY_HERE";
 
-            try {
-                const role = roleEl.value;
-                if (!role) throw new Error("Veuillez sélectionner: Qui êtes-vous ?");
+                // Elements
+                const form = document.getElementById("nexaForm");
+                const statusEl = document.getElementById("formStatus");
+                const roleEl = document.getElementById("role");
+                const sectionTechnician = document.getElementById("sectionTechnician");
+                const sectionClient = document.getElementById("sectionClient");
+                const sectionEnterprise = document.getElementById("sectionEnterprise");
+                const techCompanyWrap = document.getElementById("techCompanyWrap");
 
-                // role validation
-                if (role === "technician") {
-                    requireOneChecked("tech_main_trade", "Métier principal");
-                    requireOneChecked("tech_experience", "Années d’expérience");
-                    requireOneChecked("tech_status", "Statut actuel");
-                    // company name required is handled by required attribute when needed
-                }
-                if (role === "client") {
-                    requireOneChecked("client_type", "Vous êtes");
-                    requireOneChecked("client_service", "Services recherchés");
-                    requireOneChecked("client_how_manage", "Comment gérez-vous vos interventions aujourd’hui");
-                    // project optional in screenshot, keep optional
-                }
-                if (role === "enterprise") {
-                    requireOneChecked("ent_sites", "Nombre de sites");
-                    requireOneChecked("ent_users", "Nombre de utilisateurs");
-                    requireOneChecked("ent_needs", "Besoins principaux");
-                    requireOneChecked("ent_how_manage", "Comment gérez-vous vos interventions aujourd’hui");
+                // Check critical elements
+                if (!form || !roleEl || !sectionTechnician) {
+                    alert("Erreur critique: Éléments du formulaire introuvables.");
+                    console.error("Missing critical DOM elements:", { form, roleEl, sectionTechnician });
+                    return;
                 }
 
-                const fd = new FormData(form);
+                // Initialize Supabase
+                let supabase;
+                if (typeof window.supabase === 'undefined') {
+                    log("Warning: Supabase SDK not found.");
+                } else if (!SUPABASE_URL || SUPABASE_URL.includes("URL_HERE")) {
+                    log("Warning: Supabase credentials not configured.");
+                } else {
+                    try {
+                        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                        log("Supabase initialized.");
+                    } catch (e) { log("Supabase Init Error: " + e.message); }
+                }
 
-                // Build a single payload (best practice: store as JSON in DB)
-                const payload = Object.fromEntries(fd.entries());
+                // --- Helpers ---
+                function setRequired(selector, required) {
+                    const el = form.querySelector(selector);
+                    if (!el) return;
+                    el.required = required;
+                    if (!required) el.value = "";
+                }
 
-                // Convert checkboxes to booleans
-                payload.wants_updates = fd.get("wants_updates") === "1";
-                payload.tech_ready_clear_prices = fd.get("tech_ready_clear_prices") === "1";
-                payload.tech_ready_documented = fd.get("tech_ready_documented") === "1";
-                payload.tech_ready_reviews = fd.get("tech_ready_reviews") === "1";
-                payload.tech_ready_tracking = fd.get("tech_ready_tracking") === "1";
+                function clearRadio(name) {
+                    const radios = form.querySelectorAll(`input[name="${name}"]`);
+                    radios.forEach(i => i.checked = false);
+                }
 
-                const r = await fetch("/.netlify/functions/nexa-signup", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
+                function requireOneChecked(name, label) {
+                    const inputs = form.querySelectorAll(`input[name="${name}"]`);
+                    const any = [...inputs].some(i => i.checked);
+                    if (!any) throw new Error(`Veuillez sélectionner: ${label}`);
+                }
+
+                // --- Logic ---
+                function updateSections() {
+                    const role = roleEl.value;
+                    log("Role changed to: " + role);
+
+                    // 1. Hide All Sections
+                    sectionTechnician.classList.add("hidden");
+                    sectionClient.classList.add("hidden");
+                    sectionEnterprise.classList.add("hidden");
+
+                    // 2. Reset Fields (Clear Radios & Remove Required)
+                    const radiosToClear = [
+                        "tech_main_trade", "tech_experience", "tech_status", "tech_project_6m",
+                        "client_type", "client_service", "client_how_manage", "client_project_6m",
+                        "ent_sites", "ent_users", "ent_needs", "ent_how_manage"
+                    ];
+                    radiosToClear.forEach(clearRadio);
+
+                    const inputsToReset = [
+                        'input[name="tech_zones"]', 'input[name="tech_company_name"]',
+                        'input[name="ent_company_name"]', 'select[name="ent_activity_type"]',
+                        'input[name="ent_company_name_2"]', 'select[name="ent_activity_type_2"]'
+                    ];
+                    inputsToReset.forEach(sel => setRequired(sel, false));
+
+                    // 3. Show Selected Section
+                    if (role === "technician") {
+                        sectionTechnician.classList.remove("hidden");
+                        setRequired('input[name="tech_zones"]', true);
+                    } else if (role === "client") {
+                        sectionClient.classList.remove("hidden");
+                    } else if (role === "enterprise") {
+                        sectionEnterprise.classList.remove("hidden");
+                        setRequired('input[name="ent_company_name"]', true);
+                        setRequired('select[name="ent_activity_type"]', true);
+                        setRequired('input[name="ent_company_name_2"]', true);
+                        setRequired('select[name="ent_activity_type_2"]', true);
+                    }
+
+                    // Reset sub-sections
+                    if (techCompanyWrap) techCompanyWrap.classList.add("hidden");
+                }
+
+                // Listeners
+                roleEl.addEventListener("change", updateSections);
+
+                // Technician Sub-logic
+                form.addEventListener("change", (e) => {
+                    if (e.target.name === "tech_status") {
+                        const val = e.target.value;
+                        const needsCompany = (val === "Entreprise" || val === "Technicien salarié");
+                        if (needsCompany) {
+                            if (techCompanyWrap) techCompanyWrap.classList.remove("hidden");
+                            setRequired('input[name="tech_company_name"]', true);
+                        } else {
+                            if (techCompanyWrap) techCompanyWrap.classList.add("hidden");
+                            setRequired('input[name="tech_company_name"]', false);
+                        }
+                    }
                 });
 
-                if (!r.ok) throw new Error(await r.text());
+                // Submit Handler
+                form.addEventListener("submit", async (e) => {
+                    e.preventDefault();
+                    statusEl.textContent = "Inscription en cours...";
+                    statusEl.style.color = "black";
 
-                statusEl.textContent = "Merci ! Votre inscription a été envoyée.";
-                form.reset();
-                setSection(""); // hide all
-                techCompanyWrap.classList.add("hidden");
-            } catch (err) {
-                statusEl.textContent = "Erreur: " + (err?.message || "Réessayez.");
+                    if (!supabase) {
+                        if (confirm("Supabase credentials are missing. Do you want to try anyway (it will fail)?")) {
+                            // proceed
+                        } else {
+                            statusEl.textContent = "Erreur: Supabase non configuré.";
+                            return;
+                        }
+                    }
+
+                    try {
+                        const role = roleEl.value;
+                        if (!role) throw new Error("Veuillez sélectionner: Qui êtes-vous ?");
+
+                        // 1. Prepare User Data (Common)
+                        const fd = new FormData(form);
+                        const userPayload = {
+                            role: role,
+                            full_name: fd.get("full_name"),
+                            email: fd.get("email"),
+                            phone_whatsapp: fd.get("phone_whatsapp"),
+                            phone_alt: fd.get("phone_alt"),
+                            city_region: fd.get("city_region"),
+                            language: fd.get("language"),
+                            wants_updates: fd.get("wants_updates") === "1"
+                        };
+
+                        // 2. Prepare Role Data
+                        let roleTable = "";
+                        let rolePayload = {};
+
+                        if (role === "technician") {
+                            requireOneChecked("tech_main_trade", "Métier principal");
+                            requireOneChecked("tech_experience", "Années d’expérience");
+                            requireOneChecked("tech_status", "Statut actuel");
+
+                            roleTable = "technicians";
+                            rolePayload = {
+                                main_trade: fd.get("tech_main_trade"),
+                                experience_years: fd.get("tech_experience"),
+                                status: fd.get("tech_status"),
+                                company_name: fd.get("tech_company_name"),
+                                intervention_zones: fd.get("tech_zones"),
+                                project_6m: fd.get("tech_project_6m"),
+                                ready_clear_prices: fd.get("tech_ready_clear_prices") === "1",
+                                ready_documented: fd.get("tech_ready_documented") === "1",
+                                ready_reviews: fd.get("tech_ready_reviews") === "1",
+                                ready_tracking: fd.get("tech_ready_tracking") === "1"
+                            };
+                        }
+                        else if (role === "client") {
+                            requireOneChecked("client_type", "Vous êtes");
+                            requireOneChecked("client_service", "Services recherchés");
+                            requireOneChecked("client_how_manage", "Gestion actuelle");
+
+                            roleTable = "clients";
+                            rolePayload = {
+                                client_type: fd.get("client_type"),
+                                service_needed: fd.get("client_service"),
+                                current_management: fd.get("client_how_manage"),
+                                project_6m: fd.get("client_project_6m")
+                            };
+                        }
+                        else if (role === "enterprise") {
+                            requireOneChecked("ent_sites", "Nombre de sites");
+                            requireOneChecked("ent_users", "Nombre de utilisateurs");
+                            requireOneChecked("ent_needs", "Besoins principaux");
+                            requireOneChecked("ent_how_manage", "Gestion actuelle");
+
+                            roleTable = "enterprises";
+                            rolePayload = {
+                                company_name: fd.get("ent_company_name"),
+                                activity_type: fd.get("ent_activity_type"),
+                                company_name_2: fd.get("ent_company_name_2"),
+                                activity_type_2: fd.get("ent_activity_type_2"),
+                                sites_count: fd.get("ent_sites"),
+                                users_count: fd.get("ent_users"),
+                                main_needs: fd.get("ent_needs"),
+                                current_management: fd.get("ent_how_manage")
+                            };
+                        }
+
+                        // Start Submission
+                        statusEl.textContent = "Création du compte...";
+                        if (!supabase) throw new Error("Client Supabase non initialisé.");
+
+                        // Step A: Insert User
+                        const { data: userData, error: userError } = await supabase
+                            .from('users')
+                            .insert([userPayload])
+                            .select(); // Need to return ID
+
+                        if (userError) throw userError;
+                        if (!userData || userData.length === 0) throw new Error("Erreur lors de la création de l'utilisateur.");
+
+                        const newUserId = userData[0].id;
+                        log("User created with ID: " + newUserId);
+
+                        // Step B: Insert Role Data
+                        rolePayload.user_id = newUserId;
+
+                        // We use the same 'roleTable' variable to target the correct table
+                        const { error: roleError } = await supabase
+                            .from(roleTable)
+                            .insert([rolePayload]);
+
+                        if (roleError) {
+                            // In a real app we might revert the user creation here, 
+                            // but for now we just show the error.
+                            throw roleError;
+                        }
+
+                        statusEl.textContent = "✅ Merci ! Votre inscription a été enregistrée.";
+                        statusEl.style.color = "green";
+                        form.reset();
+                        updateSections();
+
+                    } catch (err) {
+                        console.error(err);
+                        statusEl.textContent = "⚠️ " + (err.message || "Une erreur est survenue.");
+                        statusEl.style.color = "#d00";
+                    }
+                });
+
+                // Initialize UI state
+                updateSections();
+                log("Form Initialized.");
             }
-        });
-
-        // initial
-        setSection("");
+        })();
     </script>
 
 </body>

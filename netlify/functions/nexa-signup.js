@@ -7,89 +7,128 @@ export default async (req) => {
     const data = await req.json();
 
     // Basic validation
-    if (!data.role || !data.email) {
-      return new Response("Missing role or email", { status: 400 });
+    const required = ["role","full_name","email","phone_whatsapp","phone_alt","city_region","language"];
+    for (const k of required) {
+      if (!data?.[k]) return new Response(`Missing ${k}`, { status: 400 });
     }
 
     const SUPABASE_URL = process.env.SUPABASE_URL;
     const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    
-    // Headers for Supabase API
-    const headers = {
-      "Content-Type": "application/json",
-      "apikey": KEY,
-      "Authorization": `Bearer ${KEY}`
+
+    // 1) Insert into users and get id back
+    const userInsert = {
+      role: data.role,
+      full_name: data.full_name,
+      email: data.email,
+      phone_whatsapp: data.phone_whatsapp,
+      phone_alt: data.phone_alt,
+      city_region: data.city_region,
+      language: data.language,
+      wants_updates: !!data.wants_updates,
     };
 
-    // 1. Prepare User Payload
-    const userPayload = {
-        role: data.role,
-        full_name: data.full_name,
-        email: data.email,
-        phone_whatsapp: data.phone_whatsapp || data.phone, // handle both just in case
-        phone_alt: data.phone_alt,
-        city_region: data.city_region,
-        language: data.language,
-        wants_updates: !!data.wants_updates
-    };
-
-    // 2. Insert User & Get ID
-    // Header "Prefer: return=representation" is ensuring we get the inserted row back
-    const userRes = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+    const userRes = await fetch(`${SUPABASE_URL}/rest/v1/users?select=id`, {
       method: "POST",
-      headers: { ...headers, "Prefer": "return=representation" },
-      body: JSON.stringify(userPayload),
+      headers: {
+        "Content-Type": "application/json",
+        apikey: KEY,
+        Authorization: `Bearer ${KEY}`,
+        Prefer: "return=representation",
+      },
+      body: JSON.stringify(userInsert),
     });
 
-    if (!userRes.ok) {
-      const err = await userRes.text();
-      return new Response(`Error creating user: ${err}`, { status: 500 });
+    if (!userRes.ok) return new Response(await userRes.text(), { status: 500 });
+
+    const userJson = await userRes.json();
+    const userId = userJson?.[0]?.id;
+    if (!userId) return new Response("No user id returned", { status: 500 });
+
+    // 2) Insert into role table
+    const role = data.role;
+    const details = data.details || {};
+
+    if (role === "technician") {
+      const techInsert = {
+        user_id: userId,
+        main_trade: details.main_trade,
+        experience_years: details.experience_years,
+        status: details.status,
+        company_name: details.company_name || null,
+        project_6m: details.project_6m || null,
+        ready_clear_prices: !!details.ready_clear_prices,
+        ready_documented: !!details.ready_documented,
+        ready_reviews: !!details.ready_reviews,
+        ready_tracking: !!details.ready_tracking,
+      };
+
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/technicians`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: KEY,
+          Authorization: `Bearer ${KEY}`,
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify(techInsert),
+      });
+
+      if (!r.ok) return new Response(await r.text(), { status: 500 });
     }
 
-    const userRows = await userRes.json();
-    const userId = userRows[0]?.id;
+    if (role === "enterprise") {
+      const entInsert = {
+        user_id: userId,
+        company_name: details.company_name,
+        activity_type: details.activity_type,
+        sites_count: details.sites_count,
+        users_count: details.users_count,
+        main_needs: details.main_needs,
+        current_management: details.current_management,
+      };
 
-    if (!userId) {
-       return new Response("Failed to retrieve new User ID", { status: 500 });
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/enterprises`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: KEY,
+          Authorization: `Bearer ${KEY}`,
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify(entInsert),
+      });
+
+      if (!r.ok) return new Response(await r.text(), { status: 500 });
     }
 
-    // 3. Prepare Role Payload
-    let roleTable = "";
-    // If 'details' object is passed, use it. Otherwise try to use flat data (backward compat attempt? No, let's strict to 'details').
-    // We assume the caller sends a 'details' object containing the role-specific fields.
-    let rolePayload = data.details || {}; 
-    
-    rolePayload.user_id = userId;
+    if (role === "client") {
+      const clientInsert = {
+        user_id: userId,
+        client_type: details.client_type,
+        service_needed: details.service_needed,
+        current_management: details.current_management,
+        project_6m: details.project_6m || null,
+      };
 
-    if (data.role === "technician") {
-        roleTable = "technicians";
-    } else if (data.role === "client") {
-        roleTable = "clients";
-    } else if (data.role === "enterprise") {
-        roleTable = "enterprises";
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/clients`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: KEY,
+          Authorization: `Bearer ${KEY}`,
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify(clientInsert),
+      });
+
+      if (!r.ok) return new Response(await r.text(), { status: 500 });
     }
 
-    if (roleTable) {
-        // 4. Insert Role Data
-        const roleRes = await fetch(`${SUPABASE_URL}/rest/v1/${roleTable}`, {
-            method: "POST",
-            headers: { ...headers, "Prefer": "return=minimal" }, // No need for data back
-            body: JSON.stringify(rolePayload),
-        });
-
-        if (!roleRes.ok) {
-            const err = await roleRes.text();
-            // Optional cleanup: Delete user? For now just report error.
-            return new Response(`User created but failed to add details: ${err}`, { status: 500 });
-        }
-    }
-
-    return new Response(JSON.stringify({ ok: true, id: userId }), {
+    return new Response(JSON.stringify({ ok: true, user_id: userId }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-
   } catch (e) {
-    return new Response("Server Error: " + e.message, { status: 500 });
+    return new Response(`Bad Request: ${e?.message || "unknown"}`, { status: 400 });
   }
 };
